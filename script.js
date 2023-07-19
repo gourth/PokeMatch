@@ -125,6 +125,8 @@ const handleGameWon = () => {
 };
 
 const clickCard = (e) => {
+    const clickSound = document.getElementById('clickSound');
+    clickSound.play();
     const pokemonCard = e.currentTarget;
     const [front, back] = getFrontAndBackFromCard(pokemonCard);
     if (front.classList.contains("rotated") || isPaused) {
@@ -141,6 +143,8 @@ const clickCard = (e) => {
         const secondPokemonName = pokemonCard.dataset.pokename;
         const firstPokemonName = firstPick.dataset.pokename;
         if (firstPokemonName !== secondPokemonName) {
+            const incorrectMatchSound = document.getElementById('incorrectMatchSound');
+            incorrectMatchSound.play();
             const [firstFront, firstBack] = getFrontAndBackFromCard(firstPick);
             setTimeout(() => {
                 rotateElements([front, back, firstFront, firstBack]);
@@ -155,6 +159,9 @@ const clickCard = (e) => {
             }
             firstPick = null;
             isPaused = false;
+
+            const correctMatchSound = document.getElementById('correctMatchSound');
+            correctMatchSound.play();
         }
     }
 };
