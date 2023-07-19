@@ -35,10 +35,20 @@ const loadPokemon = async () => {
 }
 
 const resetGame = async() => {
+    const winnerMessageElement = document.getElementById('winnerMessage');
+    if (winnerMessageElement) {
+        winnerMessageElement.style.display = 'none';
+    }
+
+    const gameOverMessageElement = document.getElementById('gameOverMessage');
+    if (gameOverMessageElement) {
+        gameOverMessageElement.style.display = 'none';
+    }
     game.innerHTML = '';
     isPaused = true;
     firstPick = null;
     matches = 0;
+    resetTimer();
     setTimeout(async () => {
         const loadedPokemon = await loadPokemon();
         displayPokemon([...loadedPokemon, ...loadedPokemon]);
@@ -64,40 +74,90 @@ const displayPokemon = (pokemon) => {
     game.innerHTML = pokemonHTML;
 }
 
+let timeRemaining = 60;
+let timerInterval;
+
+const startTimer = () => {
+    if (timerInterval) {
+        clearInterval(timerInterval); 
+    }
+
+    const timerElement = document.getElementById("timer");
+    timerElement.textContent = timeRemaining; 
+
+    timerInterval = setInterval(() => {
+        timeRemaining--;
+        if (timeRemaining >= 0) {
+            timerElement.textContent = timeRemaining;
+        } else {
+            clearInterval(timerInterval);
+            handleGameOver(); 
+        }
+    }, 1000);
+};
+
+const resetTimer = () => {
+    timeRemaining = 60; 
+    const timerElement = document.getElementById("timer");
+    timerElement.textContent = timeRemaining; 
+};
+
+const handleGameOver = () => {
+    // Display the "GAME OVER" message on the screen
+    const gameOverMessageElement = document.getElementById("gameOverMessage");
+    gameOverMessageElement.style.display = "block";
+};
+
+const handleGameWon = () => {
+    // Display and flash "WINNER" message on the screen
+    const winnerMessageElement = document.getElementById("winnerMessage");
+    let isVisible = false;
+    const flashingInterval = setInterval(() => {
+        isVisible = !isVisible;
+        winnerMessageElement.style.display = isVisible ? "block" : "none";
+    }, 500); 
+
+    
+    setTimeout(() => {
+        clearInterval(flashingInterval);
+        winnerMessageElement.style.display = "block"; // 
+    }, 5000); 
+};
+
 const clickCard = (e) => {
     const pokemonCard = e.currentTarget;
-    const [front, back] = getFrontAndBackFromCard(pokemonCard)
-    if(front.classList.contains("rotated") || isPaused) {
+    const [front, back] = getFrontAndBackFromCard(pokemonCard);
+    if (front.classList.contains("rotated") || isPaused) {
         return;
     }
     isPaused = true;
     rotateElements([front, back]);
-    if(!firstPick){
+    if (!firstPick) {
         firstPick = pokemonCard;
         isPaused = false;
-    }
-    else {
+        // Start the timer when the first card is clicked
+        startTimer();
+    } else {
         const secondPokemonName = pokemonCard.dataset.pokename;
         const firstPokemonName = firstPick.dataset.pokename;
-        if(firstPokemonName !== secondPokemonName) {
+        if (firstPokemonName !== secondPokemonName) {
             const [firstFront, firstBack] = getFrontAndBackFromCard(firstPick);
             setTimeout(() => {
                 rotateElements([front, back, firstFront, firstBack]);
                 firstPick = null;
                 isPaused = false;
-            }, 500)    
-        }else {
+            }, 500);
+        } else {
             matches++;
-            if(matches === 8) {
-                console.log("WINNER");
+            if (matches === 8) {
+                handleGameWon(); 
+                clearInterval(timerInterval); 
             }
             firstPick = null;
             isPaused = false;
         }
     }
-    
-}
-
+};
 const getFrontAndBackFromCard = (card) => {
     const front = card.querySelector(".front");
     const back = card.querySelector(".back");
