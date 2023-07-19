@@ -104,12 +104,16 @@ const resetTimer = () => {
 
 const handleGameOver = () => {
     // Display the "GAME OVER" message on the screen
+    const loseSound = document.getElementById('loseSound');
+    loseSound.play();
     const gameOverMessageElement = document.getElementById("gameOverMessage");
     gameOverMessageElement.style.display = "block";
 };
 
 const handleGameWon = () => {
     // Display and flash "WINNER" message on the screen
+    const winSound = document.getElementById('winSound');
+    winSound.play();
     const winnerMessageElement = document.getElementById("winnerMessage");
     let isVisible = false;
     const flashingInterval = setInterval(() => {
