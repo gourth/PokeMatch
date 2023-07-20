@@ -11,13 +11,25 @@
         <header>
         <h1>PokeMatch!</h1>
         <div id="timer">60</div>
-        <button onclick="resetGame()">Reset</button>
+        <label for="level">Select Level:</label>
+        <select id="level">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <button onclick="resetGame()">New Game</button>
+        <!-- <button onclick="resetGame()">Reset</button> -->
         </header>
-        <h3>Match all 8 Pokemon to win!</h3>
+        <h3>Match all of the Pokemon to win!</h3>
         <div id="game"></div>
     </div>
+    <div>
+        
+      </div>
+      
     <div id="winnerMessage" style="display: none;">WINNER!</div>
     <div id="gameOverMessage" style="display: none;">GAME OVER</div>
+  
     
 <audio id="clickSound" src="/flip.mp3" preload="auto"></audio>
 <audio id="correctMatchSound" src="/success.mp3" preload="auto"></audio>

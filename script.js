@@ -23,27 +23,47 @@ const colors = {
 	normal: '#F5F5F5'
 };
 
+
+const levels = {
+    easy: {
+      numCards: 8,
+      
+    },
+    medium: {
+      numCards: 12,
+      
+    },
+    hard: {
+      numCards: 16,
+      
+    },
+  };
+  
+  // Get the selected level from the dropdown
+  const levelSelector = document.getElementById("level");
+  let selectedLevel = levelSelector.value;
+  
+  // Update the selected level whenever the dropdown changes
+  levelSelector.addEventListener("change", () => {
+    selectedLevel = levelSelector.value;
+    resetGame(); // Call resetGame() when the level changes
+  });
+
 const loadPokemon = async () => {
-    const randomIds = new Set();
-    while(randomIds.size < 8){
-        const randomNumber = Math.ceil(Math.random() * 150);
-        randomIds.add(randomNumber);
-    }
-    const pokePromises = [...randomIds].map(id => fetch(pokeAPIBaseUrl + id))
-    const results = await Promise.all(pokePromises);
-    return await Promise.all(results.map(res => res.json()));
-}
+  const randomIds = new Set();
+  while (randomIds.size < levels[selectedLevel].numCards / 2) {
+    const randomNumber = Math.ceil(Math.random() * 150);
+    randomIds.add(randomNumber);
+  }
+  const pokePromises = [...randomIds].map((id) => fetch(pokeAPIBaseUrl + id));
+  const results = await Promise.all(pokePromises);
+  return await Promise.all(results.map((res) => res.json()));
+};
 
 const resetGame = async() => {
-    const winnerMessageElement = document.getElementById('winnerMessage');
-    if (winnerMessageElement) {
-        winnerMessageElement.style.display = 'none';
-    }
-
-    const gameOverMessageElement = document.getElementById('gameOverMessage');
-    if (gameOverMessageElement) {
-        gameOverMessageElement.style.display = 'none';
-    }
+    
+    const loadedPokemon = await loadPokemon();
+  displayPokemon([...loadedPokemon, ...loadedPokemon]);
     game.innerHTML = '';
     isPaused = true;
     firstPick = null;
@@ -54,6 +74,15 @@ const resetGame = async() => {
         displayPokemon([...loadedPokemon, ...loadedPokemon]);
         isPaused = false;
     },200)
+    const winnerMessageElement = document.getElementById('winnerMessage');
+    if (winnerMessageElement) {
+        winnerMessageElement.style.display = 'none';
+    }
+
+    const gameOverMessageElement = document.getElementById('gameOverMessage');
+    if (gameOverMessageElement) {
+        gameOverMessageElement.style.display = 'none';
+    }
 }
 
 const displayPokemon = (pokemon) => {
@@ -115,18 +144,19 @@ const handleGameWon = () => {
     const winSound = document.getElementById('winSound');
     winSound.play();
     const winnerMessageElement = document.getElementById("winnerMessage");
-    let isVisible = false;
+
+    let isVisible = true;
     const flashingInterval = setInterval(() => {
         isVisible = !isVisible;
         winnerMessageElement.style.display = isVisible ? "block" : "none";
-    }, 500); 
+    }, 500);
 
-    
     setTimeout(() => {
         clearInterval(flashingInterval);
-        winnerMessageElement.style.display = "block"; // 
-    }, 5000); 
+        winnerMessageElement.style.display = "none";
+    }, 5000);
 };
+
 
 const clickCard = (e) => {
     const clickSound = document.getElementById('clickSound');
@@ -157,9 +187,9 @@ const clickCard = (e) => {
             }, 500);
         } else {
             matches++;
-            if (matches === 8) {
-                handleGameWon(); 
-                clearInterval(timerInterval); 
+            if (matches === levels[selectedLevel].numCards / 2) {
+                handleGameWon();
+                clearInterval(timerInterval);
             }
             firstPick = null;
             isPaused = false;
