@@ -83,6 +83,8 @@ const resetGame = async() => {
     if (gameOverMessageElement) {
         gameOverMessageElement.style.display = 'none';
     }
+
+    
 }
 
 const displayPokemon = (pokemon) => {
@@ -139,22 +141,50 @@ const handleGameOver = () => {
     gameOverMessageElement.style.display = "block";
 };
 
-const handleGameWon = () => {
-    // Display and flash "WINNER" message on the screen
-    const winSound = document.getElementById('winSound');
-    winSound.play();
-    const winnerMessageElement = document.getElementById("winnerMessage");
+let points = 0;
 
-    let isVisible = true;
-    const flashingInterval = setInterval(() => {
-        isVisible = !isVisible;
-        winnerMessageElement.style.display = isVisible ? "block" : "none";
-    }, 500);
+const updatePointsDisplay = () => {
+  const pointsDisplayElement = document.getElementById("pointsDisplay");
+  pointsDisplayElement.textContent = `Points: ${points}`;
+};
 
-    setTimeout(() => {
-        clearInterval(flashingInterval);
-        winnerMessageElement.style.display = "none";
-    }, 5000);
+const handleGameWon = (difficulty) => {
+  let pointsToAdd = 0;
+
+  // Assign points based on difficulty
+  switch (difficulty) {
+    case "easy":
+      pointsToAdd = 1;
+      break;
+    case "medium":
+      pointsToAdd = 5;
+      break;
+    case "hard":
+      pointsToAdd = 10;
+      break;
+    default:
+      break;
+  }
+
+  // Increment points and update display
+  points += pointsToAdd;
+  updatePointsDisplay();
+
+  // Display and flash "WINNER" message on the screen
+  const winSound = document.getElementById('winSound');
+  winSound.play();
+  const winnerMessageElement = document.getElementById("winnerMessage");
+
+  let isVisible = true;
+  const flashingInterval = setInterval(() => {
+    isVisible = !isVisible;
+    winnerMessageElement.style.display = isVisible ? "block" : "none";
+  }, 500);
+
+  setTimeout(() => {
+    clearInterval(flashingInterval);
+    winnerMessageElement.style.display = "none";
+  }, 5000);
 };
 
 
@@ -188,7 +218,7 @@ const clickCard = (e) => {
         } else {
             matches++;
             if (matches === levels[selectedLevel].numCards / 2) {
-                handleGameWon();
+                handleGameWon(selectedLevel);
                 clearInterval(timerInterval);
             }
             firstPick = null;
